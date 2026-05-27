@@ -1,1 +1,415 @@
 ﻿code,name,source,stage,date_range,error,traceback
+001221,悍高集团,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001221, bars=197","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001221, bars=197
+"
+001233,海安集团,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001233, bars=119","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001233, bars=119
+"
+001237,C惠康,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001237, bars=3","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001237, bars=3
+"
+001257,盛龙股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001257, bars=37","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001257, bars=37
+"
+001280,中国铀业,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001280, bars=113","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001280, bars=113
+"
+001365,天海电子,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001365, bars=7","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001365, bars=7
+"
+001369,双欣材料,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001369, bars=94","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001369, bars=94
+"
+001386,马可波罗,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001386, bars=143","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001386, bars=143
+"
+001393,维通利,stock_fetch,stock_fetch,20220101~20260526,"数据不足：001393, bars=8","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：001393, bars=8
+"
+301275,汉朔科技,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301275, bars=293","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301275, bars=293
+"
+301531,春光集团,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301531, bars=12","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301531, bars=12
+"
+301563,云汉芯城,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301563, bars=153","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301563, bars=153
+"
+301599,理奇智能,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301599, bars=16","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301599, bars=16
+"
+301629,矽电股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301629, bars=284","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301629, bars=284
+"
+301630,同宇新材,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301630, bars=211","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301630, bars=211
+"
+301638,南网数字,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301638, bars=124","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301638, bars=124
+"
+301656,联合动力,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301656, bars=156","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301656, bars=156
+"
+301658,首航新能,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301658, bars=277","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301658, bars=277
+"
+301662,宏工科技,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301662, bars=267","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301662, bars=267
+"
+301665,泰禾股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301665, bars=271","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301665, bars=271
+"
+301666,大普微,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301666, bars=23","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301666, bars=23
+"
+301667,纳百川,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301667, bars=99","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301667, bars=99
+"
+301678,新恒汇,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301678, bars=225","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301678, bars=225
+"
+301680,固德电材,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301680, bars=54","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301680, bars=54
+"
+301682,宏明电子,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301682, bars=41","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301682, bars=41
+"
+301696,三瑞智能,stock_fetch,stock_fetch,20220101~20260526,"数据不足：301696, bars=30","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：301696, bars=30
+"
+600930,华电新能,stock_fetch,stock_fetch,20220101~20260526,"数据不足：600930, bars=207","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：600930, bars=207
+"
+601026,道生天合,stock_fetch,stock_fetch,20220101~20260526,"数据不足：601026, bars=146","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：601026, bars=146
+"
+601112,振石股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：601112, bars=74","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：601112, bars=74
+"
+603014,威高血净,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603014, bars=238","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603014, bars=238
+"
+603049,中策橡胶,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603049, bars=236","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603049, bars=236
+"
+603092,德力佳,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603092, bars=131","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603092, bars=131
+"
+603124,江南新材,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603124, bars=286","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603124, bars=286
+"
+603175,超颖电子,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603175, bars=141","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603175, bars=141
+"
+603202,天有为,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603202, bars=262","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603202, bars=262
+"
+603248,锡华科技,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603248, bars=99","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603248, bars=99
+"
+603262,技源集团,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603262, bars=202","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603262, bars=202
+"
+603376,大明电子,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603376, bars=132","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603376, bars=132
+"
+603406,天富龙,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603406, bars=190","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603406, bars=190
+"
+603407,长裕集团,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603407, bars=12","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603407, bars=12
+"
+603435,C嘉德,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603435, bars=3","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603435, bars=3
+"
+603459,红板科技,stock_fetch,stock_fetch,20220101~20260526,"数据不足：603459, bars=32","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：603459, bars=32
+"
+688635,N长进,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688635, bars=0","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688635, bars=0
+"
+688712,北芯生命,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688712, bars=69","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688712, bars=69
+"
+688727,恒坤新材,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688727, bars=124","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688727, bars=124
+"
+688729,屹唐股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688729, bars=213","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688729, bars=213
+"
+688757,胜科纳米,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688757, bars=283","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688757, bars=283
+"
+688759,必贝特,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688759, bars=139","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688759, bars=139
+"
+688765,禾元生物,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688765, bars=139","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688765, bars=139
+"
+688775,影石创新,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688775, bars=232","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688775, bars=232
+"
+688781,视涯科技,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688781, bars=41","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688781, bars=41
+"
+688783,西安奕材,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688783, bars=139","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688783, bars=139
+"
+688785,恒运昌,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688785, bars=75","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688785, bars=75
+"
+688790,昂瑞微,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688790, bars=104","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688790, bars=104
+"
+688795,摩尔线程,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688795, bars=111","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688795, bars=111
+"
+688796,百奥赛图,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688796, bars=108","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688796, bars=108
+"
+688802,沐曦股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688802, bars=103","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688802, bars=103
+"
+688807,优迅股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688807, bars=101","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688807, bars=101
+"
+688808,联讯仪器,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688808, bars=20","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688808, bars=20
+"
+688809,强一股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688809, bars=94","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688809, bars=94
+"
+688811,有研复材,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688811, bars=30","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688811, bars=30
+"
+688813,泰金新能,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688813, bars=37","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688813, bars=37
+"
+688818,电科蓝天,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688818, bars=66","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688818, bars=66
+"
+688820,盛合晶微,stock_fetch,stock_fetch,20220101~20260526,"数据不足：688820, bars=23","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：688820, bars=23
+"
+920045,蘅东光,stock_fetch,stock_fetch,20220101~20260526,"数据不足：920045, bars=93","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：920045, bars=93
+"
+920068,天工股份,stock_fetch,stock_fetch,20220101~20260526,"数据不足：920068, bars=252","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：920068, bars=252
+"
+920125,鸿仕达,stock_fetch,stock_fetch,20220101~20260526,"数据不足：920125, bars=20","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：920125, bars=20
+"
+920178,锐翔智能,stock_fetch,stock_fetch,20220101~20260526,"数据不足：920178, bars=8","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：920178, bars=8
+"
+920186,中科仪,stock_fetch,stock_fetch,20220101~20260526,"数据不足：920186, bars=17","Traceback (most recent call last):
+  File ""<stdin>"", line 43, in <module>
+  File ""/Users/shishuangcheng/Documents/00solo/相对强弱选股/main.py"", line 145, in process_one_stock
+    raise ValueError(f""数据不足：{code}, bars={len(merged)}"")
+ValueError: 数据不足：920186, bars=17
+"
