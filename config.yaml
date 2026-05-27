@@ -1,0 +1,81 @@
+benchmark:
+  default: "000300"
+  name: "沪深300"
+  supported:
+    "000300": "沪深300"
+    "000001": "上证指数"
+    "000905": "中证500"
+    "000852": "中证1000"
+    "399006": "创业板指"
+    "000688": "科创50"
+data:
+  default_start: "20220101"
+  default_end: ""
+  min_bars: 300
+  recent_bars: 500
+  adjust: "qfq"
+  local_stock_template: "data/stocks/{code}.csv"
+  local_index_template: "data/index/{benchmark}.csv"
+paths:
+  report_dir: "reports/difference_chart"
+  image_dir: "reports/difference_chart/images"
+params:
+  slope_windows: [60, 120, 250]
+  breakout_windows: [60, 120, 250]
+  ma_windows: [20, 60]
+  below_zero_window: 250
+  volume_ma_window: 20
+  spread_zscore_window: 250
+  rolling_low_window: 250
+classification:
+  below_zero_ratio_threshold: 0.7
+  b_mean_abs_threshold: 20
+  b_breakout_zscore: 1.0
+  c_below_zero_ratio_max: 0.4
+  c_hot_zscore: 3
+  c_hot_price_multiple: 2.0
+score:
+  min_candidate_score: 60
+  strong_candidate_score: 80
+  weights:
+    spread_above_zero: 8
+    spread_slope_60_positive: 10
+    spread_slope_120_positive: 10
+    spread_slope_250_positive: 8
+    long_weak_short_turn_positive: 10
+    spread_above_ma60: 6
+    spread_breakout_60: 8
+    spread_breakout_120: 10
+    spread_breakout_250: 7
+    stock_above_ma20: 6
+    stock_ma20_above_ma60: 6
+    price_breakout_60: 6
+    price_breakout_120: 7
+    price_breakout_250: 7
+    market_above_ma60: 5
+    market_ma20_above_ma60: 5
+    volume_ratio_above_1_2: 5
+    volume_ratio_above_1_5: 5
+    risk_price_double_from_250_low: -5
+    risk_spread_zscore_hot: -5
+    risk_below_stock_ma20: -5
+    risk_market_below_ma60: -10
+cache:
+  enabled: true
+  expire_days: 1
+  stock_cache_dir: "data/cache/stocks"
+  index_cache_dir: "data/cache/index"
+local_fallback:
+  index_dir: "data/index"
+  enabled: true
+retry:
+  akshare_retry_times: 2
+  retry_sleep_seconds: 2
+plot:
+  enabled: true
+  max_images: 50
+backtest:
+  output_dir: "reports/backtest"
+  holding_days: [5, 20, 60]
+  min_score: 60
+  signal_cooldown: 20

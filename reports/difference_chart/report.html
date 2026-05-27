@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>逐日差价图选股报告</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-hover: #273548;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --accent: #3b82f6;
+    --accent-light: #60a5fa;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --purple: #8b5cf6;
+    --gray: #6b7280;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; }
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  /* Header */
+  .header { text-align: center; padding: 40px 20px; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+  .header h1 { font-size: 32px; font-weight: 700; background: linear-gradient(135deg, var(--accent-light), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .subtitle { color: var(--text-secondary); margin-top: 8px; font-size: 14px; }
+  .header .meta { display: flex; justify-content: center; gap: 30px; margin-top: 16px; flex-wrap: wrap; }
+  .header .meta-item { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; }
+  .header .meta-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* Stats Grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; transition: all .2s; }
+  .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .stat-card .stat-value { font-size: 28px; font-weight: 700; }
+  .stat-card .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+  .stat-card.green .stat-value { color: var(--green); }
+  .stat-card.blue .stat-value { color: var(--accent-light); }
+  .stat-card.yellow .stat-value { color: var(--yellow); }
+  .stat-card.red .stat-value { color: var(--red); }
+  .stat-card.purple .stat-value { color: var(--purple); }
+
+  /* Category Distribution */
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title .count { color: var(--text-secondary); font-size: 14px; font-weight: 400; }
+
+  .cat-chart { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; min-height: 200px; padding: 10px 0; }
+  .cat-bar-wrapper { flex: 1; min-width: 70px; display: flex; flex-direction: column; align-items: center; }
+  .cat-bar { width: 48px; border-radius: 6px 6px 0 0; transition: height .5s ease; min-height: 4px; position: relative; }
+  .cat-bar .cat-count { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .cat-bar-label { margin-top: 8px; font-size: 11px; color: var(--text-secondary); text-align: center; }
+
+  /* Table */
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border); color: var(--text-secondary); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:hover td { background: var(--card-hover); }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+
+  .score-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-weight: 700; font-size: 13px; min-width: 38px; text-align: center; }
+  .score-a { background: rgba(16, 185, 129, .2); color: var(--green); }
+  .score-b { background: rgba(59, 130, 246, .2); color: var(--accent-light); }
+  .score-c { background: rgba(245, 158, 11, .2); color: var(--yellow); }
+  .score-d { background: rgba(239, 68, 68, .2); color: var(--red); }
+
+  .cat-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+  .risk-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; margin: 1px; }
+  .risk-hot { background: rgba(239, 68, 68, .2); color: var(--red); }
+  .risk-price { background: rgba(245, 158, 11, .2); color: var(--yellow); }
+  .risk-break { background: rgba(139, 92, 246, .2); color: var(--purple); }
+  .risk-default { background: rgba(107, 114, 128, .2); color: var(--text-secondary); }
+
+  .action-text { font-size: 12px; color: var(--text-secondary); max-width: 200px; }
+
+  .num { font-variant-numeric: tabular-nums; }
+  .positive { color: var(--green); }
+  .negative { color: var(--red); }
+
+  /* Score detail */
+  .score-detail { font-size: 11px; color: var(--text-secondary); }
+  .score-detail .pos { color: var(--green); }
+  .score-detail .neg { color: var(--red); }
+
+  /* Progress bar */
+  .bar-bg { background: var(--border); border-radius: 4px; height: 6px; width: 100px; display: inline-block; vertical-align: middle; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width .5s; }
+
+  /* Market status */
+  .market-strong { color: var(--green); }
+  .market-weak { color: var(--red); }
+
+  /* Summary grid */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .summary-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .summary-card h3 { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+  .summary-card .metric-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+
+  /* Error section */
+  .error-empty { color: var(--green); font-size: 14px; }
+
+  @media (max-width: 768px) {
+    .header .meta { gap: 12px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .cat-chart { gap: 8px; }
+    .cat-bar { width: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+
+<div class="header">
+  <h1>📊 逐日差价图选股报告</h1>
+  <div class="subtitle">基于相对强弱分析的全市场扫描 · 2026-05-26</div>
+  <div class="meta">
+    <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>20260526</span>
+    <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>基准指数: 000300 (沪深300)</span>
+    <span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>数据区间: 20220101 - 20260526</span>
+  </div>
+</div>
+
+
+<div class="stats-grid">
+  <div class="stat-card blue">
+    <div class="stat-value">1376</div>
+    <div class="stat-label">全量扫描</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">39</div>
+    <div class="stat-label">候选股票</div>
+  </div>
+  <div class="stat-card yellow">
+    <div class="stat-value">15.5</div>
+    <div class="stat-label">平均得分</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-value">1376</div>
+    <div class="stat-label">强势股数</div>
+  </div>
+  <div class="stat-card red">
+    <div class="stat-value">0</div>
+    <div class="stat-label">错误数量</div>
+  </div>
+</div>
+
+
+<div class="section">
+  <div class="section-title">📈 分类分布 <span class="count">(1376 只股票)</span></div>
+  <div class="cat-chart">
+    
+  <div class="cat-bar-wrapper">
+    <div class="cat-bar" style="height:4px;background:#10b981">
+      <span class="cat-count">2</span>
+    </div>
+    <div class="cat-bar-label">A+类</div>
+    <div style="font-size:10px;color:var(--text-secondary)">0.1%</div>
+  </div>
+  <div class="cat-bar-wrapper">
+    <div class="cat-bar" style="height:4px;background:#3b82f6">
+      <span class="cat-count">9</span>
+    </div>
+    <div class="cat-bar-label">B类</div>
+    <div style="font-size:10px;color:var(--text-secondary)">0.7%</div>
+  </div>
+  <div class="cat-bar-wrapper">
+    <div class="cat-bar" style="height:4px;background:#f59e0b">
+      <span class="cat-count">32</span>
+    </div>
+    <div class="cat-bar-label">C类</div>
+    <div style="font-size:10px;color:var(--text-secondary)">2.3%</div>
+  </div>
+  <div class="cat-bar-wrapper">
+    <div class="cat-bar" style="height:17px;background:#ef4444">
+      <span class="cat-count">126</span>
+    </div>
+    <div class="cat-bar-label">C类-过热观察</div>
+    <div style="font-size:10px;color:var(--text-secondary)">9.2%</div>
+  </div>
+  <div class="cat-bar-wrapper">
+    <div class="cat-bar" style="height:4px;background:#8b5cf6">
+      <span class="cat-count">5</span>
+    </div>
+    <div class="cat-bar-label">观察</div>
+    <div style="font-size:10px;color:var(--text-secondary)">0.4%</div>
+  </div>
+  <div class="cat-bar-wrapper">
+    <div class="cat-bar" style="height:160px;background:#6b7280">
+      <span class="cat-count">1202</span>
+    </div>
+    <div class="cat-bar-label">剔除</div>
+    <div style="font-size:10px;color:var(--text-secondary)">87.4%</div>
+  </div>
+  </div>
+</div>
+
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <h3>🏆 候选股分类</h3>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></span><span>26</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></span><span>6</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">观察</span></span><span>5</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></span><span>2</span></div>
+  </div>
+
+  <div class="summary-card">
+    <h3>📊 分类平均指标</h3>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></span><span>得分 86.0 · 量比 2.45</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></span><span>得分 66.3 · 量比 2.28</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#f59e0b22;color:#f59e0b">C类</span></span><span>得分 29.3 · 量比 1.23</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></span><span>得分 29.1 · 量比 1.18</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">观察</span></span><span>得分 71.0 · 量比 1.95</span></div>
+    <div class="metric-row"><span><span class="cat-badge" style="background:#6b728022;color:#6b7280">剔除</span></span><span>得分 13.0 · 量比 0.96</span></div>
+  </div>
+
+  <div class="summary-card">
+    <h3>📌 市场状态分布</h3>
+    <div class="metric-row"><span class="market-strong">强</span><span>1376 (100.0%)</span></div>
+
+  </div>
+</div>
+
+
+<div class="section">
+  <div class="section-title">🏅 候选股 Top 39</div>
+  <div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>代码</th>
+        <th>名称</th>
+        <th>分类</th>
+        <th>得分</th>
+        <th>最新价</th>
+        <th>差价</th>
+        <th>量比</th>
+        <th>差价斜率60</th>
+        <th>差价斜率120</th>
+        <th>差价突破</th>
+        <th>价格突破</th>
+        <th>风险标记</th>
+        <th>操作建议</th>
+      </tr>
+    </thead>
+    <tbody>
+
+
+      <tr>
+        <td>1</td>
+        <td><strong>688055</strong></td>
+        <td>龙腾光电</td>
+        <td><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></td>
+        <td><span class="score-badge score-a">87</span></td>
+        <td class="num">5.97</td>
+        <td class="num negative">-14.09</td>
+        <td class="num">2.61</td>
+        <td class="num">+0.120</td>
+        <td class="num">+0.096</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">重点关注，等待突破后回踩确认或小仓试错</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td><strong>002747</strong></td>
+        <td>埃斯顿</td>
+        <td><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></td>
+        <td><span class="score-badge score-a">85</span></td>
+        <td class="num">30.03</td>
+        <td class="num positive">+14.31</td>
+        <td class="num">2.29</td>
+        <td class="num">+0.185</td>
+        <td class="num">-0.022</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td>-</td>
+        <td class="action-text">重点关注，等待突破后回踩确认或小仓试错</td>
+      </tr>
+
+      <tr>
+        <td>3</td>
+        <td><strong>603005</strong></td>
+        <td>晶方科技</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-a">87</span></td>
+        <td class="num">45.10</td>
+        <td class="num positive">+35.52</td>
+        <td class="num">2.87</td>
+        <td class="num">+0.182</td>
+        <td class="num">+0.118</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>4</td>
+        <td><strong>300373</strong></td>
+        <td>扬杰科技</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">75</span></td>
+        <td class="num">97.90</td>
+        <td class="num positive">+53.39</td>
+        <td class="num">1.54</td>
+        <td class="num">+0.048</td>
+        <td class="num">+0.203</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>5</td>
+        <td><strong>002185</strong></td>
+        <td>华天科技</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">18.67</td>
+        <td class="num positive">+47.68</td>
+        <td class="num">2.23</td>
+        <td class="num">+0.050</td>
+        <td class="num">+0.186</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>6</td>
+        <td><strong>688362</strong></td>
+        <td>甬矽电子</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">75.58</td>
+        <td class="num positive">+123.40</td>
+        <td class="num">2.81</td>
+        <td class="num">+0.803</td>
+        <td class="num">+0.506</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>7</td>
+        <td><strong>600888</strong></td>
+        <td>新疆众和</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">11.27</td>
+        <td class="num positive">+52.93</td>
+        <td class="num">2.99</td>
+        <td class="num">-0.052</td>
+        <td class="num">+0.089</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>8</td>
+        <td><strong>600707</strong></td>
+        <td>彩虹股份</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">11.88</td>
+        <td class="num positive">+70.32</td>
+        <td class="num">1.42</td>
+        <td class="num">+1.167</td>
+        <td class="num">+0.358</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>9</td>
+        <td><strong>300476</strong></td>
+        <td>胜宏科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">70</span></td>
+        <td class="num">392.95</td>
+        <td class="num positive">+1313.39</td>
+        <td class="num">1.35</td>
+        <td class="num">+6.046</td>
+        <td class="num">+1.819</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>10</td>
+        <td><strong>603730</strong></td>
+        <td>岱美股份</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">13.87</td>
+        <td class="num positive">+96.41</td>
+        <td class="num">2.07</td>
+        <td class="num">+0.579</td>
+        <td class="num">+0.309</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>11</td>
+        <td><strong>002938</strong></td>
+        <td>鹏鼎控股</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">116.00</td>
+        <td class="num positive">+183.56</td>
+        <td class="num">2.40</td>
+        <td class="num">+1.908</td>
+        <td class="num">+0.676</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>12</td>
+        <td><strong>300602</strong></td>
+        <td>飞荣达</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">46.73</td>
+        <td class="num positive">+88.27</td>
+        <td class="num">1.81</td>
+        <td class="num">+0.205</td>
+        <td class="num">+0.261</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>13</td>
+        <td><strong>600584</strong></td>
+        <td>长电科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">88.19</td>
+        <td class="num positive">+190.44</td>
+        <td class="num">1.75</td>
+        <td class="num">+1.005</td>
+        <td class="num">+0.491</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>14</td>
+        <td><strong>600578</strong></td>
+        <td>京能电力</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">9.17</td>
+        <td class="num positive">+210.24</td>
+        <td class="num">2.36</td>
+        <td class="num">+0.889</td>
+        <td class="num">+0.431</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>15</td>
+        <td><strong>002245</strong></td>
+        <td>蔚蓝锂芯</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">22.35</td>
+        <td class="num positive">+31.01</td>
+        <td class="num">2.33</td>
+        <td class="num">+0.652</td>
+        <td class="num">+0.235</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>16</td>
+        <td><strong>605111</strong></td>
+        <td>新洁能</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">64.35</td>
+        <td class="num positive">+3.90</td>
+        <td class="num">1.86</td>
+        <td class="num">+0.141</td>
+        <td class="num">+0.140</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>17</td>
+        <td><strong>600863</strong></td>
+        <td>华能蒙电</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">6.10</td>
+        <td class="num positive">+88.24</td>
+        <td class="num">2.66</td>
+        <td class="num">-0.219</td>
+        <td class="num">+0.109</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>18</td>
+        <td><strong>002916</strong></td>
+        <td>深南电路</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">419.50</td>
+        <td class="num positive">+362.41</td>
+        <td class="num">1.83</td>
+        <td class="num">+2.029</td>
+        <td class="num">+1.183</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>19</td>
+        <td><strong>000021</strong></td>
+        <td>深科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">42.75</td>
+        <td class="num positive">+174.66</td>
+        <td class="num">1.73</td>
+        <td class="num">+0.344</td>
+        <td class="num">+0.483</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>20</td>
+        <td><strong>300408</strong></td>
+        <td>三环集团</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">116.93</td>
+        <td class="num positive">+175.69</td>
+        <td class="num">1.75</td>
+        <td class="num">+1.858</td>
+        <td class="num">+0.919</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>21</td>
+        <td><strong>002463</strong></td>
+        <td>沪电股份</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">133.36</td>
+        <td class="num positive">+808.45</td>
+        <td class="num">1.66</td>
+        <td class="num">+4.718</td>
+        <td class="num">+2.386</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>22</td>
+        <td><strong>002156</strong></td>
+        <td>通富微电</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">75.39</td>
+        <td class="num positive">+288.20</td>
+        <td class="num">2.03</td>
+        <td class="num">+1.390</td>
+        <td class="num">+0.836</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>23</td>
+        <td><strong>000636</strong></td>
+        <td>风华高科</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">41.70</td>
+        <td class="num positive">+45.91</td>
+        <td class="num">2.65</td>
+        <td class="num">+0.502</td>
+        <td class="num">+0.362</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>24</td>
+        <td><strong>688019</strong></td>
+        <td>安集科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">339.30</td>
+        <td class="num positive">+296.88</td>
+        <td class="num">1.06</td>
+        <td class="num">+0.923</td>
+        <td class="num">+0.627</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>25</td>
+        <td><strong>688256</strong></td>
+        <td>寒武纪</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">1410.96</td>
+        <td class="num positive">+2065.10</td>
+        <td class="num">1.00</td>
+        <td class="num">+17.551</td>
+        <td class="num">+2.398</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>26</td>
+        <td><strong>603306</strong></td>
+        <td>华懋科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">118.39</td>
+        <td class="num positive">+255.99</td>
+        <td class="num">1.12</td>
+        <td class="num">+1.647</td>
+        <td class="num">+1.549</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>27</td>
+        <td><strong>300308</strong></td>
+        <td>中际旭创</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">1103.00</td>
+        <td class="num positive">+3891.43</td>
+        <td class="num">0.86</td>
+        <td class="num">+37.298</td>
+        <td class="num">+12.604</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>28</td>
+        <td><strong>300502</strong></td>
+        <td>新易盛</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">700.00</td>
+        <td class="num positive">+3487.29</td>
+        <td class="num">1.09</td>
+        <td class="num">+23.409</td>
+        <td class="num">+9.487</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>29</td>
+        <td><strong>300394</strong></td>
+        <td>天孚通信</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">406.76</td>
+        <td class="num positive">+2382.66</td>
+        <td class="num">0.97</td>
+        <td class="num">+4.528</td>
+        <td class="num">+11.154</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>30</td>
+        <td><strong>688072</strong></td>
+        <td>拓荆科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">750.00</td>
+        <td class="num positive">+1683.51</td>
+        <td class="num">1.44</td>
+        <td class="num">+9.930</td>
+        <td class="num">+3.998</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>31</td>
+        <td><strong>600183</strong></td>
+        <td>生益科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">128.17</td>
+        <td class="num positive">+516.78</td>
+        <td class="num">1.23</td>
+        <td class="num">+3.368</td>
+        <td class="num">+0.902</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>32</td>
+        <td><strong>603986</strong></td>
+        <td>兆易创新</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">526.22</td>
+        <td class="num positive">+203.37</td>
+        <td class="num">1.25</td>
+        <td class="num">+1.343</td>
+        <td class="num">+0.755</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>33</td>
+        <td><strong>600176</strong></td>
+        <td>中国巨石</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">41.09</td>
+        <td class="num positive">+155.24</td>
+        <td class="num">1.27</td>
+        <td class="num">+1.477</td>
+        <td class="num">+1.229</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>34</td>
+        <td><strong>600186</strong></td>
+        <td>莲花控股</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">13.19</td>
+        <td class="num positive">+316.79</td>
+        <td class="num">1.26</td>
+        <td class="num">+3.319</td>
+        <td class="num">+1.366</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>35</td>
+        <td><strong>601939</strong></td>
+        <td>建设银行</td>
+        <td><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">观察</span></td>
+        <td><span class="score-badge score-a">83</span></td>
+        <td class="num">10.31</td>
+        <td class="num positive">+146.63</td>
+        <td class="num">1.39</td>
+        <td class="num">+0.362</td>
+        <td class="num">+0.115</td>
+        <td>120日</td>
+        <td>250日</td>
+        <td>-</td>
+        <td class="action-text">信号不完整，等待价格或差价进一步确认</td>
+      </tr>
+
+      <tr>
+        <td>36</td>
+        <td><strong>600012</strong></td>
+        <td>皖通高速</td>
+        <td><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">观察</span></td>
+        <td><span class="score-badge score-a">81</span></td>
+        <td class="num">16.40</td>
+        <td class="num positive">+232.05</td>
+        <td class="num">1.71</td>
+        <td class="num">+0.420</td>
+        <td class="num">+0.184</td>
+        <td>120日</td>
+        <td>120日</td>
+        <td>-</td>
+        <td class="action-text">信号不完整，等待价格或差价进一步确认</td>
+      </tr>
+
+      <tr>
+        <td>37</td>
+        <td><strong>301269</strong></td>
+        <td>华大九天</td>
+        <td><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">观察</span></td>
+        <td><span class="score-badge score-b">71</span></td>
+        <td class="num">135.00</td>
+        <td class="num positive">+62.44</td>
+        <td class="num">3.85</td>
+        <td class="num">+0.054</td>
+        <td class="num">-0.279</td>
+        <td>120日</td>
+        <td>120日</td>
+        <td>-</td>
+        <td class="action-text">信号不完整，等待价格或差价进一步确认</td>
+      </tr>
+
+      <tr>
+        <td>38</td>
+        <td><strong>603228</strong></td>
+        <td>景旺电子</td>
+        <td><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">观察</span></td>
+        <td><span class="score-badge score-b">60</span></td>
+        <td class="num">87.50</td>
+        <td class="num positive">+179.48</td>
+        <td class="num">1.22</td>
+        <td class="num">+0.959</td>
+        <td class="num">-0.003</td>
+        <td>250日</td>
+        <td>250日</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">信号不完整，等待价格或差价进一步确认</td>
+      </tr>
+
+      <tr>
+        <td>39</td>
+        <td><strong>601677</strong></td>
+        <td>明泰铝业</td>
+        <td><span class="cat-badge" style="background:#8b5cf622;color:#8b5cf6">观察</span></td>
+        <td><span class="score-badge score-b">60</span></td>
+        <td class="num">19.62</td>
+        <td class="num negative">-35.60</td>
+        <td class="num">1.61</td>
+        <td class="num">+0.032</td>
+        <td class="num">+0.077</td>
+        <td>无</td>
+        <td>250日</td>
+        <td>-</td>
+        <td class="action-text">信号不完整，等待价格或差价进一步确认</td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+</div>
+
+
+<div class="section">
+  <div class="section-title">⭐ 核心推荐 (3 只)</div>
+  <div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>代码</th>
+        <th>名称</th>
+        <th>分类</th>
+        <th>得分</th>
+        <th>得分明细</th>
+        <th>操作建议</th>
+      </tr>
+    </thead>
+    <tbody>
+
+
+      <tr>
+        <td><strong>688055</strong></td>
+        <td>龙腾光电</td>
+        <td><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></td>
+        <td><span class="score-badge score-a">87</span></td>
+        <td class="score-detail"><div class="pos">+10 差价 斜率 60 转正</div><div class="pos">+10 差价 斜率 120 转正</div><div class="pos">+10 长期弱转强 转正</div><div class="pos">+8 差价 突破 60</div><div class="pos">+10 差价 突破 120</div><div class="pos">+7 差价 突破 250</div><div class="pos">+6 股价 突破 60</div><div class="pos">+7 股价 突破 120</div><div class="pos">+7 股价 突破 250</div><div class="pos">+5 指数 高于 均线60</div><div class="pos">+5 指数 均线20 高于 均线60</div><div class="pos">+5 量 比 高于 1 2</div><div class="pos">+5 量 比 高于 1 5</div><div class="neg">-8 risk_spread_zscore_hot</div></td>
+        <td class="action-text">重点关注，等待突破后回踩确认或小仓试错</td>
+      </tr>
+
+      <tr>
+        <td><strong>002747</strong></td>
+        <td>埃斯顿</td>
+        <td><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></td>
+        <td><span class="score-badge score-a">85</span></td>
+        <td class="score-detail"><div class="pos">+10 差价 斜率 60 转正</div><div class="pos">+10 长期弱转强 转正</div><div class="pos">+8 差价 突破 60</div><div class="pos">+10 差价 突破 120</div><div class="pos">+7 差价 突破 250</div><div class="pos">+6 股价 突破 60</div><div class="pos">+7 股价 突破 120</div><div class="pos">+7 股价 突破 250</div><div class="pos">+5 指数 高于 均线60</div><div class="pos">+5 指数 均线20 高于 均线60</div><div class="pos">+5 量 比 高于 1 2</div><div class="pos">+5 量 比 高于 1 5</div><div style="color:var(--yellow);font-size:10px;margin-top:4px">⚠ 120日差价斜率未转正</div></td>
+        <td class="action-text">重点关注，等待突破后回踩确认或小仓试错</td>
+      </tr>
+
+      <tr>
+        <td><strong>603005</strong></td>
+        <td>晶方科技</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-a">87</span></td>
+        <td class="score-detail"><div class="pos">+10 差价 斜率 60 转正</div><div class="pos">+10 差价 斜率 120 转正</div><div class="pos">+10 长期弱转强 转正</div><div class="pos">+8 差价 突破 60</div><div class="pos">+10 差价 突破 120</div><div class="pos">+7 差价 突破 250</div><div class="pos">+6 股价 突破 60</div><div class="pos">+7 股价 突破 120</div><div class="pos">+7 股价 突破 250</div><div class="pos">+5 指数 高于 均线60</div><div class="pos">+5 指数 均线20 高于 均线60</div><div class="pos">+5 量 比 高于 1 2</div><div class="pos">+5 量 比 高于 1 5</div><div class="neg">-8 risk_spread_zscore_hot</div></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+</div>
+
+
+<div class="section">
+  <div class="section-title">📋 全量结果 <span class="count">(1376 只, 显示前50)</span></div>
+  <div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>代码</th>
+        <th>名称</th>
+        <th>分类</th>
+        <th>得分</th>
+        <th>收盘价</th>
+        <th>差价</th>
+        <th>量比</th>
+        <th>市场</th>
+        <th>风险</th>
+        <th>操作建议</th>
+      </tr>
+    </thead>
+    <tbody>
+
+
+      <tr>
+        <td>1</td>
+        <td><strong>688055</strong></td>
+        <td>龙腾光电</td>
+        <td><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></td>
+        <td><span class="score-badge score-a">87</span></td>
+        <td class="num">5.97</td>
+        <td class="num negative">-14.09</td>
+        <td class="num">2.61</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">重点关注，等待突破后回踩确认或小仓试错</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td><strong>002747</strong></td>
+        <td>埃斯顿</td>
+        <td><span class="cat-badge" style="background:#10b98122;color:#10b981">A+类</span></td>
+        <td><span class="score-badge score-a">85</span></td>
+        <td class="num">30.03</td>
+        <td class="num positive">+14.31</td>
+        <td class="num">2.29</td>
+        <td>强</td>
+        <td>-</td>
+        <td class="action-text">重点关注，等待突破后回踩确认或小仓试错</td>
+      </tr>
+
+      <tr>
+        <td>3</td>
+        <td><strong>603005</strong></td>
+        <td>晶方科技</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-a">87</span></td>
+        <td class="num">45.10</td>
+        <td class="num positive">+35.52</td>
+        <td class="num">2.87</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>4</td>
+        <td><strong>300373</strong></td>
+        <td>扬杰科技</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">75</span></td>
+        <td class="num">97.90</td>
+        <td class="num positive">+53.39</td>
+        <td class="num">1.54</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>5</td>
+        <td><strong>002185</strong></td>
+        <td>华天科技</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">18.67</td>
+        <td class="num positive">+47.68</td>
+        <td class="num">2.23</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>6</td>
+        <td><strong>688362</strong></td>
+        <td>甬矽电子</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">75.58</td>
+        <td class="num positive">+123.40</td>
+        <td class="num">2.81</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>7</td>
+        <td><strong>600888</strong></td>
+        <td>新疆众和</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">11.27</td>
+        <td class="num positive">+52.93</td>
+        <td class="num">2.99</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>8</td>
+        <td><strong>600707</strong></td>
+        <td>彩虹股份</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">11.88</td>
+        <td class="num positive">+70.32</td>
+        <td class="num">1.42</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>9</td>
+        <td><strong>300223</strong></td>
+        <td>北京君正</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-c">58</span></td>
+        <td class="num">149.60</td>
+        <td class="num positive">+17.39</td>
+        <td class="num">1.76</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>10</td>
+        <td><strong>000725</strong></td>
+        <td>京东方A</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-c">57</span></td>
+        <td class="num">5.77</td>
+        <td class="num positive">+21.38</td>
+        <td class="num">3.81</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>11</td>
+        <td><strong>688172</strong></td>
+        <td>燕东微</td>
+        <td><span class="cat-badge" style="background:#3b82f622;color:#3b82f6">B类</span></td>
+        <td><span class="score-badge score-c">57</span></td>
+        <td class="num">63.78</td>
+        <td class="num positive">+152.54</td>
+        <td class="num">1.10</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">观察，等待放量或回踩确认</td>
+      </tr>
+
+      <tr>
+        <td>12</td>
+        <td><strong>300476</strong></td>
+        <td>胜宏科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">70</span></td>
+        <td class="num">392.95</td>
+        <td class="num positive">+1313.39</td>
+        <td class="num">1.35</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>13</td>
+        <td><strong>603730</strong></td>
+        <td>岱美股份</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">13.87</td>
+        <td class="num positive">+96.41</td>
+        <td class="num">2.07</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>14</td>
+        <td><strong>002938</strong></td>
+        <td>鹏鼎控股</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">116.00</td>
+        <td class="num positive">+183.56</td>
+        <td class="num">2.40</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>15</td>
+        <td><strong>300602</strong></td>
+        <td>飞荣达</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">46.73</td>
+        <td class="num positive">+88.27</td>
+        <td class="num">1.81</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>16</td>
+        <td><strong>600584</strong></td>
+        <td>长电科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">88.19</td>
+        <td class="num positive">+190.44</td>
+        <td class="num">1.75</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>17</td>
+        <td><strong>600578</strong></td>
+        <td>京能电力</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">9.17</td>
+        <td class="num positive">+210.24</td>
+        <td class="num">2.36</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>18</td>
+        <td><strong>002245</strong></td>
+        <td>蔚蓝锂芯</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">22.35</td>
+        <td class="num positive">+31.01</td>
+        <td class="num">2.33</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>19</td>
+        <td><strong>605111</strong></td>
+        <td>新洁能</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">64.35</td>
+        <td class="num positive">+3.90</td>
+        <td class="num">1.86</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>20</td>
+        <td><strong>600863</strong></td>
+        <td>华能蒙电</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">6.10</td>
+        <td class="num positive">+88.24</td>
+        <td class="num">2.66</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>21</td>
+        <td><strong>002916</strong></td>
+        <td>深南电路</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">419.50</td>
+        <td class="num positive">+362.41</td>
+        <td class="num">1.83</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>22</td>
+        <td><strong>000021</strong></td>
+        <td>深科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">42.75</td>
+        <td class="num positive">+174.66</td>
+        <td class="num">1.73</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>23</td>
+        <td><strong>300408</strong></td>
+        <td>三环集团</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">116.93</td>
+        <td class="num positive">+175.69</td>
+        <td class="num">1.75</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>24</td>
+        <td><strong>002463</strong></td>
+        <td>沪电股份</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">133.36</td>
+        <td class="num positive">+808.45</td>
+        <td class="num">1.66</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>25</td>
+        <td><strong>002156</strong></td>
+        <td>通富微电</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">75.39</td>
+        <td class="num positive">+288.20</td>
+        <td class="num">2.03</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>26</td>
+        <td><strong>000636</strong></td>
+        <td>风华高科</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">67</span></td>
+        <td class="num">41.70</td>
+        <td class="num positive">+45.91</td>
+        <td class="num">2.65</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>27</td>
+        <td><strong>688019</strong></td>
+        <td>安集科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">339.30</td>
+        <td class="num positive">+296.88</td>
+        <td class="num">1.06</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>28</td>
+        <td><strong>688256</strong></td>
+        <td>寒武纪</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">1410.96</td>
+        <td class="num positive">+2065.10</td>
+        <td class="num">1.00</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>29</td>
+        <td><strong>603306</strong></td>
+        <td>华懋科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">118.39</td>
+        <td class="num positive">+255.99</td>
+        <td class="num">1.12</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>30</td>
+        <td><strong>300308</strong></td>
+        <td>中际旭创</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">1103.00</td>
+        <td class="num positive">+3891.43</td>
+        <td class="num">0.86</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>31</td>
+        <td><strong>300502</strong></td>
+        <td>新易盛</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">700.00</td>
+        <td class="num positive">+3487.29</td>
+        <td class="num">1.09</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>32</td>
+        <td><strong>300394</strong></td>
+        <td>天孚通信</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">65</span></td>
+        <td class="num">406.76</td>
+        <td class="num positive">+2382.66</td>
+        <td class="num">0.97</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>33</td>
+        <td><strong>688072</strong></td>
+        <td>拓荆科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">750.00</td>
+        <td class="num positive">+1683.51</td>
+        <td class="num">1.44</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>34</td>
+        <td><strong>600183</strong></td>
+        <td>生益科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">128.17</td>
+        <td class="num positive">+516.78</td>
+        <td class="num">1.23</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>35</td>
+        <td><strong>603986</strong></td>
+        <td>兆易创新</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">526.22</td>
+        <td class="num positive">+203.37</td>
+        <td class="num">1.25</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>36</td>
+        <td><strong>600176</strong></td>
+        <td>中国巨石</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">41.09</td>
+        <td class="num positive">+155.24</td>
+        <td class="num">1.27</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>37</td>
+        <td><strong>600186</strong></td>
+        <td>莲花控股</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-b">62</span></td>
+        <td class="num">13.19</td>
+        <td class="num positive">+316.79</td>
+        <td class="num">1.26</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>38</td>
+        <td><strong>688700</strong></td>
+        <td>东威科技</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-c">57</span></td>
+        <td class="num">84.56</td>
+        <td class="num positive">+157.27</td>
+        <td class="num">0.97</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>39</td>
+        <td><strong>300054</strong></td>
+        <td>鼎龙股份</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-c">57</span></td>
+        <td class="num">79.55</td>
+        <td class="num positive">+235.04</td>
+        <td class="num">1.15</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>40</td>
+        <td><strong>301217</strong></td>
+        <td>铜冠铜箔</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-c">57</span></td>
+        <td class="num">102.45</td>
+        <td class="num positive">+372.31</td>
+        <td class="num">0.84</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>41</td>
+        <td><strong>301200</strong></td>
+        <td>大族数控</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-c">57</span></td>
+        <td class="num">285.36</td>
+        <td class="num positive">+352.93</td>
+        <td class="num">1.08</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span><span class="risk-tag risk-hot">相对强度过热</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>42</td>
+        <td><strong>605020</strong></td>
+        <td>永和股份</td>
+        <td><span class="cat-badge" style="background:#f59e0b22;color:#f59e0b">C类</span></td>
+        <td><span class="score-badge score-c">55</span></td>
+        <td class="num">33.78</td>
+        <td class="num positive">+62.18</td>
+        <td class="num">1.25</td>
+        <td>强</td>
+        <td>-</td>
+        <td class="action-text">趋势强，但注意不要追高</td>
+      </tr>
+
+      <tr>
+        <td>43</td>
+        <td><strong>688469</strong></td>
+        <td>芯联集成</td>
+        <td><span class="cat-badge" style="background:#f59e0b22;color:#f59e0b">C类</span></td>
+        <td><span class="score-badge score-c">54</span></td>
+        <td class="num">8.30</td>
+        <td class="num positive">+7.95</td>
+        <td class="num">1.52</td>
+        <td>强</td>
+        <td>-</td>
+        <td class="action-text">趋势强，但注意不要追高</td>
+      </tr>
+
+      <tr>
+        <td>44</td>
+        <td><strong>002851</strong></td>
+        <td>麦格米特</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-c">44</span></td>
+        <td class="num">137.99</td>
+        <td class="num positive">+332.64</td>
+        <td class="num">1.53</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>45</td>
+        <td><strong>002815</strong></td>
+        <td>崇达技术</td>
+        <td><span class="cat-badge" style="background:#f59e0b22;color:#f59e0b">C类</span></td>
+        <td><span class="score-badge score-c">43</span></td>
+        <td class="num">17.08</td>
+        <td class="num positive">+4.04</td>
+        <td class="num">1.59</td>
+        <td>强</td>
+        <td>-</td>
+        <td class="action-text">趋势强，但注意不要追高</td>
+      </tr>
+
+      <tr>
+        <td>46</td>
+        <td><strong>002158</strong></td>
+        <td>汉钟精机</td>
+        <td><span class="cat-badge" style="background:#f59e0b22;color:#f59e0b">C类</span></td>
+        <td><span class="score-badge score-d">35</span></td>
+        <td class="num">31.36</td>
+        <td class="num positive">+27.91</td>
+        <td class="num">1.28</td>
+        <td>强</td>
+        <td>-</td>
+        <td class="action-text">趋势强，但注意不要追高</td>
+      </tr>
+
+      <tr>
+        <td>47</td>
+        <td><strong>000600</strong></td>
+        <td>建投能源</td>
+        <td><span class="cat-badge" style="background:#f59e0b22;color:#f59e0b">C类</span></td>
+        <td><span class="score-badge score-d">35</span></td>
+        <td class="num">10.48</td>
+        <td class="num positive">+120.95</td>
+        <td class="num">1.25</td>
+        <td>强</td>
+        <td>-</td>
+        <td class="action-text">趋势强，但注意不要追高</td>
+      </tr>
+
+      <tr>
+        <td>48</td>
+        <td><strong>688777</strong></td>
+        <td>中控技术</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-d">34</span></td>
+        <td class="num">89.60</td>
+        <td class="num positive">+80.18</td>
+        <td class="num">1.10</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>49</td>
+        <td><strong>688322</strong></td>
+        <td>奥比中光</td>
+        <td><span class="cat-badge" style="background:#ef444422;color:#ef4444">C类-过热观察</span></td>
+        <td><span class="score-badge score-d">30</span></td>
+        <td class="num">116.99</td>
+        <td class="num positive">+160.53</td>
+        <td class="num">1.87</td>
+        <td>强</td>
+        <td><span class="risk-tag risk-price">一年内涨幅过大</span></td>
+        <td class="action-text">只观察，不建议追高</td>
+      </tr>
+
+      <tr>
+        <td>50</td>
+        <td><strong>605589</strong></td>
+        <td>圣泉集团</td>
+        <td><span class="cat-badge" style="background:#f59e0b22;color:#f59e0b">C类</span></td>
+        <td><span class="score-badge score-d">30</span></td>
+        <td class="num">45.00</td>
+        <td class="num positive">+26.08</td>
+        <td class="num">1.01</td>
+        <td>强</td>
+        <td>-</td>
+        <td class="action-text">趋势强，但注意不要追高</td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+</div>
+
+
+<div class="section">
+  <div class="section-title">✅ 错误记录</div>
+  <div class="error-empty">无错误 — 全部 1376 只股票处理成功</div>
+</div>
+
+
+<div style="text-align:center;padding:30px 0;color:var(--text-secondary);font-size:12px;border-top:1px solid var(--border);margin-top:20px">
+  报告生成于 20260526 · 全量扫描 1376 只 · 候选 39 只
+</div>
+</div>
+</body>
+</html>

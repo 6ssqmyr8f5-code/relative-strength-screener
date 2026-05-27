@@ -1,0 +1,4 @@
+﻿holding_days,signal_count,avg_return,median_return,win_rate,avg_excess_return,median_excess_return,excess_win_rate,avg_max_drawdown,profit_loss_ratio
+5,6,0.0117,0.0218,0.6667,0.0047,0.0122,0.6667,-0.0547,0.829
+20,6,0.0249,-0.0296,0.3333,0.0129,-0.0263,0.3333,-0.1052,3.5758
+60,5,0.108,0.1651,0.6,0.0776,0.0902,0.6,-0.1733,2.5198
