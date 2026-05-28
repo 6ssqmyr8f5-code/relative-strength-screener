@@ -16,7 +16,7 @@ from data_provider import (
 )
 from indicators import add_difference_indicators, align_stock_index
 from scoring import build_result_row, classify_latest, load_score_weights, score_latest
-from utils import load_config
+from utils import load_config, should_throttle_after_source
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--categories",
         type=str,
-        default="A+类,A类,B类,C类",
+        default="A+类,A类,B类,C类,C类-过热观察",
         help="纳入的分类，逗号分隔",
     )
     parser.add_argument("--no-plot", action="store_true", help="不生成图片")
@@ -574,6 +574,8 @@ def main() -> None:
     for idx, row in stock_pool.iterrows():
         code = row["code"]
         name = row["name"]
+        source = ""
+        had_error = False
         try:
             print(f"[{idx + 1}/{len(stock_pool)}] 处理 {code} {name}")
             factor_df, merged, source = process_one_stock(
@@ -609,6 +611,7 @@ def main() -> None:
                 all_signals.append(signals)
 
         except Exception as e:
+            had_error = True
             error_msg = f"{code} {name}: {e}"
             print("ERROR:", error_msg)
             errors.append(
@@ -624,8 +627,8 @@ def main() -> None:
             )
 
         if idx < len(stock_pool) - 1:
-            if source and "akshare" in source.lower():
-                sleep_seconds = retry_config.get("retry_sleep_seconds", 2)
+            sleep_seconds = retry_config.get("retry_sleep_seconds", 2)
+            if sleep_seconds > 0 and should_throttle_after_source(source, had_error):
                 time.sleep(sleep_seconds)
 
     if not all_signals:

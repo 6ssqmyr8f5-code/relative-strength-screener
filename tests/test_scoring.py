@@ -95,7 +95,7 @@ def test_c_hot_recognized():
         spread_std_250=10.0,
         spread_zscore_250=4.0,
     )
-    assert classify(latest) == "C类"
+    assert classify(latest) == "C类-过热观察"
     scored = score_latest(latest, {})
     assert "相对强度过热" in scored["risk_flags"]
 

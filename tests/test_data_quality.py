@@ -149,6 +149,20 @@ def test_stale_cache_warning():
     assert any(w["warning_type"] == "stale_cache" for w in warnings)
 
 
+def test_stale_cache_warning_for_cache_fallback_sources():
+    df = make_test_df()
+    warnings = check_price_data_quality(
+        df=df,
+        code="600519",
+        name="贵州茅台",
+        start="20220101",
+        end="20231231",
+        source="cache_stale",
+        min_bars=300,
+    )
+    assert any(w["warning_type"] == "stale_cache" for w in warnings)
+
+
 def test_excessive_zero_volume_warning():
     df = make_test_df()
     for i in range(50):

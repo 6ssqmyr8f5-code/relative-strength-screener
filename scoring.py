@@ -344,7 +344,7 @@ def classify_latest(
         return "B类", "同步转强，等待突破延续或回踩确认"
     if c_type:
         if hot:
-            return "C类", "强者恒强但已有过热风险，等待回踩或缩量整理"
+            return "C类-过热观察", "强者恒强但已有过热风险，等待回踩或缩量整理"
         return "C类", "强者恒强，趋势健康时可持续跟踪"
     if score >= observe_score_threshold:
         return "观察", "信号不完整，等待价格或差价进一步确认"

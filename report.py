@@ -63,7 +63,7 @@ def save_summary(
             lines.append(f"- {category}: {count}")
 
         lines.extend(["", "## 各类平均指标", ""])
-        for category in ["A+类", "A类", "B类", "C类", "观察"]:
+        for category in ["A+类", "A类", "B类", "C类", "C类-过热观察", "观察"]:
             subset = candidates[candidates["category"] == category]
             if not subset.empty:
                 avg_score = subset["score"].mean()

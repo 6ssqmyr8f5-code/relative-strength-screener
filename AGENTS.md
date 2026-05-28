@@ -39,7 +39,7 @@ python main.py --codes 600519 --no-plot
 - **Outputs**: `{report_dir}/all_results.csv`, `candidates.csv`, `summary.md`, `errors.csv`, plus PNG charts in `{image_dir}/`
 - **Config-driven**: All windows, thresholds, score cutoffs in `config.yaml` — edit there, not in code
 - **Chinese fonts**: matplotlib configured for Chinese labels via `Arial Unicode MS` / `PingFang SC` etc.
-- **No tests, no linting, no CI** in this repo
+- **Tests**: pytest tests live under `tests/`; no linting/CI configured
 
 ## Full-market data workflow
 

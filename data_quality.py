@@ -185,7 +185,7 @@ def check_price_data_quality(
                     }
                 )
 
-    if source == "cache" and pd.notna(latest_date):
+    if str(source).startswith("cache") and pd.notna(latest_date):
         try:
             end_date = pd.to_datetime(end)
             days_diff = (end_date - latest_date).days

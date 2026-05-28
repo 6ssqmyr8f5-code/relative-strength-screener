@@ -16,7 +16,7 @@ from data_quality import check_price_data_quality, is_warning_fatal
 from indicators import add_difference_indicators, align_stock_index
 from report import ensure_dirs, plot_stock_report, save_csv, save_summary
 from scoring import build_result_row, load_score_weights, sort_results
-from utils import load_config, resolve_template, today_str
+from utils import load_config, resolve_template, should_throttle_after_source, today_str
 
 
 RESULT_COLUMNS = [
@@ -161,6 +161,25 @@ def process_one_stock(
     return result_row, factors, source
 
 
+def select_chart_items(
+    candidates: pd.DataFrame,
+    chart_data_by_code: dict[str, tuple[str, str, dict, pd.DataFrame]],
+    max_images: int,
+) -> list[tuple[str, str, dict, pd.DataFrame]]:
+    if candidates.empty or max_images <= 0:
+        return []
+
+    selected = []
+    for code in candidates["code"].astype(str):
+        item = chart_data_by_code.get(code)
+        if item is None:
+            continue
+        selected.append(item)
+        if len(selected) >= max_images:
+            break
+    return selected
+
+
 def save_outputs(
     all_results: pd.DataFrame,
     candidates: pd.DataFrame,
@@ -293,13 +312,15 @@ def main() -> None:
             print(f"  数据质量提示：{w['warning_message']}")
 
     all_rows = []
-    chart_items = []
+    chart_data_by_code = {}
     errors = []
     data_warnings = []
 
     for idx, row in stock_pool.iterrows():
         code = row["code"]
         name = row["name"]
+        source = ""
+        had_error = False
 
         if resume and code in existing_results:
             existing_date = existing_results[code]
@@ -319,15 +340,15 @@ def main() -> None:
                 end=end,
                 adjust=adjust,
                 min_bars=min_bars,
-                    cache_config=cache_config,
-                    retry_config=retry_config,
-                    local_stock_path=get_local_stock_path(config, code),
-                    force_refresh=force_refresh,
-                    classification_config=classification_config,
-                    observe_score_threshold=min_candidate_score,
-                    indicator_config=indicator_config,
-                    score_weights=score_weights,
-                )
+                cache_config=cache_config,
+                retry_config=retry_config,
+                local_stock_path=get_local_stock_path(config, code),
+                force_refresh=force_refresh,
+                classification_config=classification_config,
+                observe_score_threshold=min_candidate_score,
+                indicator_config=indicator_config,
+                score_weights=score_weights,
+            )
             result_row["data_source"] = source
             all_rows.append(result_row)
 
@@ -348,8 +369,9 @@ def main() -> None:
                 data_warnings.append(w)
 
             if result_row["score"] >= min_candidate_score and result_row["category"] != "剔除":
-                chart_items.append((code, name, result_row, factor_df))
+                chart_data_by_code[code] = (code, name, result_row, factor_df)
         except Exception as e:
+            had_error = True
             error_msg = f"{code} {name}: {e}"
             print("ERROR:", error_msg)
             errors.append(
@@ -365,7 +387,8 @@ def main() -> None:
             )
         if idx < len(stock_pool) - 1:
             sleep_seconds = retry_config.get("retry_sleep_seconds", 2)
-            time.sleep(sleep_seconds)
+            if sleep_seconds > 0 and should_throttle_after_source(source, had_error):
+                time.sleep(sleep_seconds)
 
     new_results = pd.DataFrame(all_rows)
     if resume and not existing_rows_df.empty:
@@ -394,10 +417,11 @@ def main() -> None:
     plot_enabled = config["plot"].get("enabled", True) and not args.no_plot
     max_images = int(config["plot"].get("max_images", 50))
     if plot_enabled:
-        plotted = 0
-        for code, name, result_row, factor_df in chart_items:
-            if plotted >= max_images:
-                break
+        for code, name, result_row, factor_df in select_chart_items(
+            candidates,
+            chart_data_by_code,
+            max_images,
+        ):
             try:
                 plot_stock_report(
                     code=code,
@@ -410,7 +434,6 @@ def main() -> None:
                     spread_breakout_level=result_row.get("spread_breakout_level", "无"),
                     price_breakout_level=result_row.get("price_breakout_level", "无"),
                 )
-                plotted += 1
             except Exception as e:
                 print(f"画图失败 {code}: {e}")
 
