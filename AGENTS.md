@@ -16,6 +16,9 @@ python main.py --codes 600519,000858 --benchmark 000300 --start 20220101
 # From stock pool CSV (columns: code, name)
 python main.py --stock-pool pool.csv --benchmark 000300
 
+# Prefill Tencent stock cache before full-market scans
+NO_PROXY='*' no_proxy='*' python prefill_stock_cache.py --stock-pool data/full_pool.csv --start 20220101 --end YYYYMMDD
+
 # Skip chart generation (faster for batch runs)
 python main.py --codes 600519 --no-plot
 ```
@@ -29,6 +32,7 @@ python main.py --codes 600519 --no-plot
 | `indicators.py` | Price normalization (base=100), spread = stock_index - market_index, rolling slopes, breakouts |
 | `scoring.py` | Point-based scoring (0-100) + classification: A+ > A > B > C > C类-过热观察 > 观察 > 剔除 |
 | `report.py` | Matplotlib charts (price + spread panels), CSV/Summary output |
+| `prefill_stock_cache.py` | Tencent daily data prefill for long-term stock cache before full-market scans |
 | `config.yaml` | All tunable params: windows, thresholds, paths |
 
 ## Key facts
@@ -53,19 +57,11 @@ NO_PROXY='*' no_proxy='*' <command>
 
 2. Run `python build_pool.py` to refresh `data/full_pool.csv`. The script now tries Eastmoney first and automatically falls back to Sina raw A-share quotes when Eastmoney disconnects. Sina's `mktcap` unit is 万元, so the 100 亿 filter is `mktcap >= 1,000,000` before converting to yuan. Keep `data/full_pool_with_market_cap.csv` as the audit file. A normal current run is roughly: 全A 5523, ST/退市 255, non-ST and >=100 亿 2010.
 
-3. Before the main scan, prefill `data/cache/stocks/{code}_qfq.csv` for every code in `data/full_pool.csv` using AKShare Tencent daily data:
+3. Before the main scan, prefill `data/cache/stocks/{code}_qfq.csv` for every code in `data/full_pool.csv` using AKShare Tencent daily data. The script automatically uses `sh` for `6xxxxx`, `sz` for `0xxxxx` / `3xxxxx`, and `bj` for Beijing-market codes, stores Tencent's standalone `amount` field as project `volume`, skips already-covered caches, writes `reports/difference_chart/cache_prefill_audit.csv`, and prints the recommended latest common `--end` date:
 
-```python
-ak.stock_zh_a_hist_tx(symbol="sh600519", start_date="20220101", end_date="20260527", adjust="qfq")
+```bash
+NO_PROXY='*' no_proxy='*' python prefill_stock_cache.py --stock-pool data/full_pool.csv --start 20220101 --end YYYYMMDD
 ```
-
-Use market prefixes: `sh` for `6xxxxx`, `sz` for `0xxxxx` / `3xxxxx`, and `bj` for Beijing-market codes if supported. Save cache CSVs with columns:
-
-```csv
-date,open,high,low,close,volume,amount
-```
-
-Tencent's `amount` column should be stored as `volume` for this project; set `amount` empty if no separate amount field is available.
 
 4. Run the main scan from cache. Set `--end` to the latest common stock trading date actually present in the cache (for example `20260526`), not necessarily today's date, so the runner does not attempt pointless incremental online fetches.
 

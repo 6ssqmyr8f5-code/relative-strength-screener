@@ -47,6 +47,18 @@ RESULT_COLUMNS = [
 
 ERROR_COLUMNS = ["code", "name", "source", "stage", "date_range", "error", "traceback"]
 
+DATA_WARNING_COLUMNS = [
+    "code",
+    "name",
+    "source",
+    "stage",
+    "date_range",
+    "warning_type",
+    "warning_message",
+    "latest_date",
+    "rows",
+]
+
 REQUIRED_FACTOR_COLUMNS = [
     "date",
     "stock_close",
@@ -202,7 +214,7 @@ def save_outputs(
     save_csv(all_results, all_results_path)
     save_csv(candidates, candidates_path)
     save_csv(pd.DataFrame(errors, columns=ERROR_COLUMNS), error_path)
-    save_csv(pd.DataFrame(data_warnings), warning_path)
+    save_csv(pd.DataFrame(data_warnings, columns=DATA_WARNING_COLUMNS), warning_path)
     save_summary(candidates, all_results, summary_path, run_params or {})
     return all_results_path, candidates_path, summary_path, error_path, warning_path
 

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from main import select_chart_items
+from main import DATA_WARNING_COLUMNS, save_outputs, select_chart_items
 from utils import should_throttle_after_source
 
 
@@ -29,3 +29,19 @@ def test_select_chart_items_follows_sorted_candidates_and_limit():
     selected = select_chart_items(candidates, chart_data, max_images=2)
 
     assert [item[0] for item in selected] == ["000002", "000001"]
+
+
+def test_save_outputs_writes_readable_empty_data_warnings(tmp_path):
+    *_, warning_path = save_outputs(
+        all_results=pd.DataFrame(),
+        candidates=pd.DataFrame(),
+        errors=[],
+        data_warnings=[],
+        report_dir=str(tmp_path),
+        run_params={},
+    )
+
+    warnings = pd.read_csv(warning_path)
+
+    assert list(warnings.columns) == DATA_WARNING_COLUMNS
+    assert warnings.empty

@@ -16,7 +16,7 @@ from data_provider import (
 )
 from indicators import add_difference_indicators, align_stock_index
 from scoring import build_result_row, classify_latest, load_score_weights, score_latest
-from utils import load_config, should_throttle_after_source
+from utils import load_config, should_throttle_after_source, today_str
 
 
 def parse_args() -> argparse.Namespace:
@@ -516,7 +516,7 @@ def main() -> None:
 
     benchmark = normalize_index_code(args.benchmark or config["benchmark"]["default"])
     start = args.start or config["data"]["default_start"]
-    end = args.end or config["data"].get("default_end") or "20260527"
+    end = args.end or config["data"].get("default_end") or today_str()
     adjust = config["data"].get("adjust", "qfq")
     min_bars = int(config["data"].get("min_bars", 300))
 
